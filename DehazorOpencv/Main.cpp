@@ -12,7 +12,7 @@ int main()
 	unsigned char* MatToRGBA(const Mat *mat);
 	Mat img = imread("pic2.jpg",1);   
 
-	LyhDehazor *lyhdehazor = new LyhDehazor(img.cols, img.rows, 7);
+	LyhDehazor *lyhdehazor = new LyhDehazor(img.cols, img.rows, 3);
 	lyhdehazor->Dehazor(MatToRGBA(&img), img.cols, img.rows);
 
 

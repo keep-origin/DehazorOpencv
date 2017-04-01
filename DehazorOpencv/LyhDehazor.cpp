@@ -391,220 +391,223 @@ void LyhDehazor::MeanFilter(T1 *data, T1 *outdata, int r, int width, int height,
 
 template<class T1, class T2>
 void LyhDehazor::BoxFilter(T1 *data, T1 *outdata, int r, int width, int height, T2 cumtype) {
-    T2 *cum = (T2 *) malloc(sizeof(T2) * width * height);
-    if (!cum) {
-        //LOG("BoxFilter malloc failed!!!!!!");
-        return;
-    }
-    int len = width * height;
-    int end;
-    const int block = 4; //
+	T2 *cum = (T2 *) malloc(sizeof(T2) * width * height);
+	if (!cum) {
+		//LOG("BoxFilter malloc failed!!!!!!");
+		return;
+	}
+	/**********this  ringht this*************/
+
+	const int len = width * height;
+	const int block = 4; //
+
+	//cum y
+	for (int i = 0; i < width; ++i) {//the first row
+		cum[i] = data[i];
+	}
+	for (int i = width; i < len; i += width) {
+		int end = i + width / block * block;
+		for (int j = i; j < end; j += block) {
+			cum[j] = cum[j - width] + data[j];
+			cum[j + 1] = cum[j - width + 1] + data[j + 1];
+			cum[j + 2] = cum[j - width + 2] + data[j + 2];
+			cum[j + 3] = cum[j - width + 3] + data[j + 3];
+		}
+		for (int j = end; j < i + width; ++j) {
+			cum[j] = cum[j - width] + data[j];
+		}
+	}
+	//diff y
+	const int R_WIDTH = r * width;
+	const int R1_WIDTH = width * (r + 1);
+	for (int i = 0 ; i < (r + 1) * width; i += block)   //不需要担心end是不是block的整数倍，就算不是，超过的部分也会在后面重新计算正确的值
+	{
+		outdata[i] = cum[R_WIDTH+i];
+		outdata[i + 1] = cum[R_WIDTH+i + 1];
+		outdata[i + 2] = cum[R_WIDTH+i + 2];
+		outdata[i + 3] = cum[R_WIDTH+i + 3];
+	}
+	for (int i = (r + 1) * width; i < (height - r - 1) * width; i += block) {
+		outdata[i] = cum[i + R_WIDTH] - cum[i - R1_WIDTH];
+		outdata[i + 1] = cum[i + R_WIDTH + 1] - cum[i - R1_WIDTH + 1];
+		outdata[i + 2] = cum[i + R_WIDTH + 2] - cum[i - R1_WIDTH + 2];
+		outdata[i + 3] = cum[i + R_WIDTH + 3] - cum[i - R1_WIDTH + 3];
+	}
+	for (int i = height - r - 1; i < height; ++i) {
+		int end = width / block * block;
+		int outIndex = i * width;
+		int topIndex = outIndex - R1_WIDTH;
+		int bottomIndex = (height - 1) * width;
+		for (int y = 0; y < end; y += block) {
+			outdata[outIndex] = cum[bottomIndex] - cum[topIndex];
+			outdata[outIndex + 1] = cum[bottomIndex + 1] - cum[topIndex + 1];
+			outdata[outIndex + 2] = cum[bottomIndex + 2] - cum[topIndex + 2];
+			outdata[outIndex + 3] = cum[bottomIndex + 3] - cum[topIndex + 3];
+			outIndex += block;
+			topIndex += block;
+			bottomIndex += block;
+		}
+		for (int y = end; y < width; ++y) {
+			outdata[outIndex++] = cum[bottomIndex++] - cum[topIndex++];
+		}
+	}
 
 
-    //cum y
-    for (int i = 0; i < width; ++i) {//the first row
-        cum[i] = data[i];
-    }
-    for (int i = width; i < len; i += width) {
-        end = (i + width) / 4 * 4;
-        for (int j = i; j < end; j += block) {
-            cum[j] = cum[j - width] + data[j];
-            cum[j + 1] = cum[j - width + 1] + data[j + 1];
-            cum[j + 2] = cum[j - width + 2] + data[j + 2];
-            cum[j + 3] = cum[j - width + 3] + data[j + 3];
-        }
-        for (int j = end; j < i + width; ++j) {
-            cum[j] = cum[j - width] + data[j];
-        }
-    }
-    //diff y
-    int i = 0;
-    end = (r + 1) * width;
-    for (i = 0; i < end; i += block)   //不需要担心end是不是block的整数倍，就算不是，超过的部分也会在后面重新计算正确的值
-    {
-        outdata[i] = cum[i];
-        outdata[i + 1] = cum[i + 1];
-        outdata[i + 2] = cum[i + 2];
-        outdata[i + 3] = cum[i + 3];
-    }
-    int space = width * (r + 1);
-    for (i = end, end = (height - r - 1) * width; i < end; i += block) {
-        outdata[i] = cum[i + space] - cum[i - space];
-        outdata[i + 1] = cum[i + space + 1] - cum[i - space + 1];
-        outdata[i + 2] = cum[i + space + 2] - cum[i - space + 2];
-        outdata[i + 3] = cum[i + space + 3] - cum[i - space + 3];
-    }
-    for (i = height - r - 1; i < height; ++i) {
-        end = width / block * block;
-        int outIndex = i * width;
-        int topIndex = outIndex - (r + 1) * width;
-        int bottomIndex = (height - 1) * width;
-        for (int y = 0; y < end; y += block) {
-            outdata[outIndex] = cum[bottomIndex] - cum[topIndex];
-            outdata[outIndex + 1] = cum[bottomIndex + 1] - cum[topIndex + 1];
-            outdata[outIndex + 2] = cum[bottomIndex + 2] - cum[topIndex + 2];
-            outdata[outIndex + 3] = cum[bottomIndex + 3] - cum[topIndex + 3];
-            outIndex += block;
-            topIndex += block;
-            bottomIndex += block;
-        }
-        for (int y = end; y < width; ++y) {
-            outdata[outIndex++] = cum[bottomIndex++] - cum[topIndex++];
-        }
-    }
+	//cum x
+	for (int y = 0; y < width * height; y += width) {
+		cum[y] = outdata[y];  //处理第一列
+	}
+	for (int y = 0; y < height / 4 * 4; y += 4) {
+		//y01234都是每行的行首
+		int y0 = y * width, y1 = (y + 1) * width, y2 = (y + 2) * width, y3 = (y + 3) * width, y4 =
+			(y + 4) * width;
+		//循环展开，每次处理四行。且每次从第二个元素开始（+1），因为第一列已经处理过了
+		for (int i = y0 + 1; i < y1; ++i) {  //处理一行
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+		for (int i = y1 + 1; i < y2; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+		for (int i = y2 + 1; i < y3; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+		for (int i = y3 + 1; i < y4; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+	}
+	for (int y = height / 4 * 4; y < height; ++y) {  //处理循环展开后的剩余行
+		for (int i = y * width + 1; i < (y+1)*width; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+	}
+	//diff x
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < r + 1; ++x) {
+			outdata[y * width + x] = cum[y * width + x + r];
+		}
+		for (int x = r + 1; x < width - r; ++x) {
+			outdata[y * width + x] =
+				(cum[y * width + x + r] - cum[y * width + x - r - 1]);
+		}
+		for (int x = width - r; x < width; ++x) {
+			outdata[y * width + x] = (cum[y * width + width - 1] - cum[y * width + x - r - 1]) ;
+		}
+	}
 
-
-    //cum x
-    for (int y = 0; y < width * height; y += width) {
-        cum[y] = outdata[y];  //��ʼ����һ��
-    }
-    end = height / 4 * 4;
-    for (int y = 0; y < end; y += 4) {
-        int y0 = y * width, y1 = (y + 1) * width, y2 = (y + 2) * width, y3 = (y + 3) * width, y4 =
-                (y + 4) * width;
-        for (i = y0 + 1; i < y1; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-        for (i = y1 + 1; i < y2; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-        for (i = y2 + 1; i < y3; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-        for (i = y3 + 1; i < y4; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-    }
-    for (int y = end; y < height; ++y) {
-        for (int i = y * width + 1, k = 0; k < width; ++k, ++i) {
-            cum[i] += outdata[i] + cum[i - 1];
-        }
-    }
-    //diff x
-    int N = r * r;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < r + 1; ++x) {
-            outdata[y * height + x] = cum[y * height + x];
-        }
-        for (int x = r + 1; x < width - r; ++x) {
-            outdata[y * height + x] = cum[y * height + x + r] - cum[y * height + x - r - 1];
-        }
-        for (int x = width - r; x < width; ++x) {
-            outdata[y * height + x] = cum[y * height + width - 1] - cum[y * height + x - r - 1];
-        }
-    }
-
-    delete[] cum;
+	delete [] cum;
+	cum = NULL;
 }
 
 //此函数的效果等于：A = data1 .* data2； 然后再MeanFilter(A)
 template<class T1, class T2, class T3>
 void LyhDehazor::MulMeanFilter(T1 *data1, T2 *data2, T3 *outdata, int r, int width, int height) {
     T3 *cum = (T3 *) malloc(sizeof(T3) * width * height);
-    if (!cum) {
-        //LOG("BoxFilter malloc failed!!!!!!");
-        return;
-    }
-    int len = width * height;
-    int end;
-    const int block = 4; //
+
+	if (!cum) {
+		//LOG("BoxFilter malloc failed!!!!!!");
+		return;
+	}
+	/**********this  ringht this*************/
+
+	const int len = width * height;
+	const int block = 4; //
+
+	//cum y
+	for (int i = 0; i < width; ++i) {//the first row
+		cum[i] = data1[i] * data2[i];
+	}
+	for (int i = width; i < len; i += width) {
+		int end = i + width / block * block;
+		for (int j = i; j < end; j += block) {
+			cum[j] = cum[j - width] + data1[j] * data2[j];
+			cum[j + 1] = cum[j - width + 1] + data1[j + 1] * data2[j + 1];
+			cum[j + 2] = cum[j - width + 2] + data1[j + 2] * data2[j + 2];
+			cum[j + 3] = cum[j - width + 3] + data1[j + 3] * data2[j + 3];
+		}
+		for (int j = end; j < i + width; ++j) {
+			cum[j] = cum[j - width] + data1[j] * data2[j];
+		}
+	}
+	//diff y
+	const int R_WIDTH = r * width;
+	const int R1_WIDTH = width * (r + 1);
+	for (int i = 0 ; i < (r + 1) * width; i += block)   //不需要担心end是不是block的整数倍，就算不是，超过的部分也会在后面重新计算正确的值
+	{
+		outdata[i] = cum[R_WIDTH+i];
+		outdata[i + 1] = cum[R_WIDTH+i + 1];
+		outdata[i + 2] = cum[R_WIDTH+i + 2];
+		outdata[i + 3] = cum[R_WIDTH+i + 3];
+	}
+	for (int i = (r + 1) * width; i < (height - r - 1) * width; i += block) {
+		outdata[i] = cum[i + R_WIDTH] - cum[i - R1_WIDTH];
+		outdata[i + 1] = cum[i + R_WIDTH + 1] - cum[i - R1_WIDTH + 1];
+		outdata[i + 2] = cum[i + R_WIDTH + 2] - cum[i - R1_WIDTH + 2];
+		outdata[i + 3] = cum[i + R_WIDTH + 3] - cum[i - R1_WIDTH + 3];
+	}
+	for (int i = height - r - 1; i < height; ++i) {
+		int end = width / block * block;
+		int outIndex = i * width;
+		int topIndex = outIndex - R1_WIDTH;
+		int bottomIndex = (height - 1) * width;
+		for (int y = 0; y < end; y += block) {
+			outdata[outIndex] = cum[bottomIndex] - cum[topIndex];
+			outdata[outIndex + 1] = cum[bottomIndex + 1] - cum[topIndex + 1];
+			outdata[outIndex + 2] = cum[bottomIndex + 2] - cum[topIndex + 2];
+			outdata[outIndex + 3] = cum[bottomIndex + 3] - cum[topIndex + 3];
+			outIndex += block;
+			topIndex += block;
+			bottomIndex += block;
+		}
+		for (int y = end; y < width; ++y) {
+			outdata[outIndex++] = cum[bottomIndex++] - cum[topIndex++];
+		}
+	}
 
 
-    //cum y
-    for (int i = 0; i < width; ++i) {//the first row
-        cum[i] = data1[i] * data2[i];
-    }
-    for (int i = width; i < len; i += width) {
-        end = (i + width) / 4 * 4;
-        for (int j = i; j < end; j += block) {
-            cum[j] = cum[j - width] + data1[j] * data2[j];
-            cum[j + 1] = cum[j - width + 1] + data1[j + 1] * data2[j + 1];
-            cum[j + 2] = cum[j - width + 2] + data1[j + 2] * data2[j + 2];
-            cum[j + 3] = cum[j - width + 3] + data1[j + 3] * data2[j + 3];
-        }
-        for (int j = end; j < i + width; ++j) {
-            cum[j] = cum[j - width] + data1[j] * data2[j];
-        }
-    }
-    //diff y
-    int i = 0;
-    end = (r + 1) * width;
-    for (i = 0; i < end; i += block)  //不需要担心end是不是block的整数倍，就算不是，超过的部分也会在后面重新计算正确的值
-    {
-        outdata[i] = cum[i];
-        outdata[i + 1] = cum[i + 1];
-        outdata[i + 2] = cum[i + 2];
-        outdata[i + 3] = cum[i + 3];
-    }
-    int space = width * (r + 1);
-    for (i = end, end = (height - r - 1) * width; i < end; i += block) {
-        outdata[i] = cum[i + space] - cum[i - space];
-        outdata[i + 1] = cum[i + space + 1] - cum[i - space + 1];
-        outdata[i + 2] = cum[i + space + 2] - cum[i - space + 2];
-        outdata[i + 3] = cum[i + space + 3] - cum[i - space + 3];
-    }
-    for (i = height - r - 1; i < height; ++i) {
-        end = width / block * block;
-        int outIndex = i * width;
-        int topIndex = outIndex - (r + 1) * width;
-        int bottomIndex = (height - 1) * width;
-        for (int y = 0; y < end; y += block) {
-            outdata[outIndex] = cum[bottomIndex] - cum[topIndex];
-            outdata[outIndex + 1] = cum[bottomIndex + 1] - cum[topIndex + 1];
-            outdata[outIndex + 2] = cum[bottomIndex + 2] - cum[topIndex + 2];
-            outdata[outIndex + 3] = cum[bottomIndex + 3] - cum[topIndex + 3];
-            outIndex += block;
-            topIndex += block;
-            bottomIndex += block;
-        }
-        for (int y = end; y < width; ++y) {
-            outdata[outIndex++] = cum[bottomIndex++] - cum[topIndex++];
-        }
-    }
+	//cum x
+	for (int y = 0; y < width * height; y += width) {
+		cum[y] = outdata[y];  //处理第一列
+	}
+	for (int y = 0; y < height / 4 * 4; y += 4) {
+		//y01234都是每行的行首
+		int y0 = y * width, y1 = (y + 1) * width, y2 = (y + 2) * width, y3 = (y + 3) * width, y4 =
+			(y + 4) * width;
+		//循环展开，每次处理四行。且每次从第二个元素开始（+1），因为第一列已经处理过了
+		for (int i = y0 + 1; i < y1; ++i) {  //处理一行
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+		for (int i = y1 + 1; i < y2; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+		for (int i = y2 + 1; i < y3; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+		for (int i = y3 + 1; i < y4; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+	}
+	for (int y = height / 4 * 4; y < height; ++y) {  //处理循环展开后的剩余行
+		for (int i = y * width + 1; i < (y+1)*width; ++i) {
+			cum[i] = outdata[i] + cum[i - 1];
+		}
+	}
+	//diff x
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < r + 1; ++x) {
+			outdata[y * width + x] = cum[y * width + x + r] / mDivN[y * width + x];
+		}
+		for (int x = r + 1; x < width - r; ++x) {
+			outdata[y * width + x] =
+				(cum[y * width + x + r] - cum[y * width + x - r - 1]) / mDivN[y * width + x];
+		}
+		for (int x = width - r; x < width; ++x) {
+			outdata[y * width + x] = (cum[y * width + width - 1] - cum[y * width + x - r - 1]) /
+				mDivN[y * width + x];
+		}
+	}
 
-
-    //cum x
-    for (int y = 0; y < width * height; y += width) {
-        cum[y] = outdata[y];  //��ʼ����һ��
-    }
-    end = height / 4 * 4;
-    for (int y = 0; y < end; y += 4) {
-        int y0 = y * width, y1 = (y + 1) * width, y2 = (y + 2) * width, y3 = (y + 3) * width, y4 =
-                (y + 4) * width;
-        for (i = y0 + 1; i < y1; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-        for (i = y1 + 1; i < y2; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-        for (i = y2 + 1; i < y3; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-        for (i = y3 + 1; i < y4; ++i) {
-            cum[i] = outdata[i] + cum[i - 1];
-        }
-    }
-    for (int y = end; y < height; ++y) {
-        for (int i = y * width + 1, k = 0; k < width; ++k, ++i) {
-            cum[i] += outdata[i] + cum[i - 1];
-        }
-    }
-    //diff x
-    int N = r * r;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < r + 1; ++x) {
-            outdata[y * width + x] = cum[y * width + x] / mDivN[y * width + x];
-        }
-        for (int x = r + 1; x < width - r; ++x) {
-            outdata[y * width + x] = (cum[y * width + x + r] - cum[y * width + x - r - 1]) / mDivN[y * width + x];
-        }
-        for (int x = width - r; x < width; ++x) {
-            outdata[y * width + x] =
-                    (cum[y * width + width - 1] - cum[y * width + x - r - 1]) /mDivN[y * width + x];
-        }
-    }
-
-    delete[] cum;
+	delete [] cum;
+	cum = NULL;
 
 }
 
