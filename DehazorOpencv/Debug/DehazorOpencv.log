@@ -1,0 +1,21 @@
+﻿生成启动时间为 2017-4-1 9:51:22。
+     1>项目“C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\DehazorOpencv\DehazorOpencv.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         D:\ProgramFiles\WorkTools\VS2012\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Main.cpp
+         Main.cpp
+       Link:
+         D:\ProgramFiles\WorkTools\VS2012\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\Debug\DehazorOpencv.exe" /INCREMENTAL /NOLOGO opencv_core249d.lib opencv_imgproc249d.lib opencv_highgui249d.lib opencv_ml249d.lib opencv_video249d.lib opencv_features2d249d.lib opencv_calib3d249d.lib opencv_objdetect249d.lib opencv_contrib249d.lib opencv_legacy249d.lib opencv_flann249d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\Debug\DehazorOpencv.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\Debug\DehazorOpencv.lib" /MACHINE:X86 Debug\LyhDehazor.obj
+         Debug\Main.obj
+     1>Main.obj : error LNK2019: 无法解析的外部符号 "void __cdecl cv::fastFree(void *)" (?fastFree@cv@@YAXPAX@Z)，该符号在函数 "public: __thiscall cv::Mat::~Mat(void)" (??1Mat@cv@@QAE@XZ) 中被引用
+     1>Main.obj : error LNK2019: 无法解析的外部符号 "public: __thiscall cv::_InputArray::_InputArray(class cv::Mat const &)" (??0_InputArray@cv@@QAE@ABVMat@1@@Z)，该符号在函数 _main 中被引用
+     1>Main.obj : error LNK2019: 无法解析的外部符号 "public: void __thiscall cv::Mat::deallocate(void)" (?deallocate@Mat@cv@@QAEXXZ)，该符号在函数 "public: void __thiscall cv::Mat::release(void)" (?release@Mat@cv@@QAEXXZ) 中被引用
+     1>Main.obj : error LNK2019: 无法解析的外部符号 "int __cdecl cv::_interlockedExchangeAdd(int *,int)" (?_interlockedExchangeAdd@cv@@YAHPAHH@Z)，该符号在函数 "public: void __thiscall cv::Mat::release(void)" (?release@Mat@cv@@QAEXXZ) 中被引用
+     1>Main.obj : error LNK2019: 无法解析的外部符号 "void __cdecl cv::namedWindow(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,int)" (?namedWindow@cv@@YAXABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z)，该符号在函数 _main 中被引用
+     1>Main.obj : error LNK2019: 无法解析的外部符号 "void __cdecl cv::imshow(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class cv::_InputArray const &)" (?imshow@cv@@YAXABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@ABV_InputArray@1@@Z)，该符号在函数 _main 中被引用
+     1>Main.obj : error LNK2019: 无法解析的外部符号 "class cv::Mat __cdecl cv::imread(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,int)" (?imread@cv@@YA?AVMat@1@ABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z)，该符号在函数 _main 中被引用
+     1>C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\Debug\DehazorOpencv.exe : fatal error LNK1120: 7 个无法解析的外部命令
+     1>已完成生成项目“C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\DehazorOpencv\DehazorOpencv.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:12.82

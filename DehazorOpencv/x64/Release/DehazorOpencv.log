@@ -1,0 +1,16 @@
+﻿生成启动时间为 2017-4-1 15:54:45。
+     1>项目“C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\DehazorOpencv\DehazorOpencv.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         D:\ProgramFiles\WorkTools\VS2012\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt dehazor.cpp LyhDehazor.cpp Main.cpp
+         dehazor.cpp
+     1>c:\users\lyhua\documents\visual studio 2012\projects\dehazoropencv\dehazoropencv\dehazor.h(4): fatal error C1083: 无法打开包括文件:“opencv2/core/core.hpp”: No such file or directory
+         LyhDehazor.cpp
+     1>LyhDehazor.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>c:\users\lyhua\documents\visual studio 2012\projects\dehazoropencv\dehazoropencv\LyhDehazor.h(7): fatal error C1083: 无法打开包括文件:“opencv2/core/core.hpp”: No such file or directory
+         Main.cpp
+     1>Main.cpp(2): fatal error C1083: 无法打开包括文件:“opencv2/core/core.hpp”: No such file or directory
+     1>已完成生成项目“C:\Users\LYHua\Documents\Visual Studio 2012\Projects\DehazorOpencv\DehazorOpencv\DehazorOpencv.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:02.75
