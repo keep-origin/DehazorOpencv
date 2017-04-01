@@ -661,10 +661,9 @@ void LyhDehazor::BoxDivN(int *out, int width, int height, int r) {
         for (int y = 0; y < height; ++y) {
             if (x >= r && x <= width - r - 1 && y >= r && y <= height - r - 1) {
                 out[index++] = max;
-
             } else {
-                m = MIN(x, width - 1 - x);
-                n = MIN(y, height - 1 - y);
+                m = MINT(r,x, width - 1 - x);
+                n = MINT(r,y, height - 1 - y);
                 out[index++] = (r + 1 + m) * (r + 1 + n);//对于边缘的
             }
 

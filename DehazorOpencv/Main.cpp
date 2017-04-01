@@ -10,13 +10,14 @@ using namespace cv;
 int main()
 {
 	cv::Mat boxfilter(cv::Mat &im, int r);
+	cv::Mat boxfilteri(cv::Mat &im, int r);
 	unsigned char* MatToRGBA(const Mat *mat);
 	unsigned char* GetMatChannel(const Mat *mat, const int );
 	//unsigned char* GetMatChannel(const Mat *mat, const int chal);
 	Mat img = imread("pic2.jpg",1);   
 
 
-	LyhDehazor *lyhdehazor = new LyhDehazor(img.cols, img.rows, 3);
+	LyhDehazor *lyhdehazor = new LyhDehazor(img.cols, img.rows, 7);
 	Dehazor *dehazor = new Dehazor();
 	dehazor->setEpsilon(0.0001f);
 	dehazor->setFog_factor(0.95f);
@@ -24,6 +25,7 @@ int main()
 	dehazor->setLocalWindowsize(21);
 
 
+	////////////box
 	unsigned char * channel = GetMatChannel(&img, 0);
 	unsigned char * channel1 = (unsigned char *)malloc(sizeof(char) * img.rows * img.cols);
 	lyhdehazor->BoxFilter(channel,channel1, 7,img.cols, img.rows, 1);
@@ -33,6 +35,30 @@ int main()
 	cv::Mat ch(img.rows, img.cols, CV_8UC1, channel);
 	cv::Mat ch2 = boxfilter(ch,7);
 	cv::imwrite("hisboxfilter.jpg",ch2);
+	///////////////////
+
+	//////////////n
+	cv::Mat matOne(450,600,CV_32F,cv::Scalar(1));
+	cv::Mat N;
+	N=boxfilteri(matOne,7);
+	cv::Mat myn(img.rows, img.cols, CV_32F, lyhdehazor->mDivN);
+	cv::imwrite("hisn.jpg",N);
+	cv::imwrite("myn.jpg",myn);
+	float * ptr = (float * )N.data;
+	for(int i = 0; i < 450*600;++i)
+	{
+		int m = lyhdehazor->mDivN[i];
+		int n = ptr[i];
+		if(m != n){
+			int f = 0;
+			int s = f+5;
+		}
+	}
+
+
+
+
+	//////////////////////////////////////chuli
 
 	lyhdehazor->Dehazor(MatToRGBA(&img), img.cols, img.rows);
 
@@ -91,6 +117,78 @@ unsigned char* GetMatChannel(const Mat *mat, const int chal)
 	return rgba;
 }
 
+
+cv::Mat boxfilteri(cv::Mat &im, int r)
+{
+	//im is a CV_32F type mat [0,1] (normalized)
+	//output is the same size to im;
+
+	int hei=im.rows;
+	int wid=im.cols;
+	cv::Mat imDst;
+	cv::Mat imCum;
+
+
+	imDst=cv::Mat::zeros(hei,wid,CV_32F);
+	imCum.create(hei,wid,CV_32F);
+
+	//cumulative sum over Y axis
+	for(int i=0;i<wid;i++){
+		for(int j=0;j<hei;j++){
+			if(j==0)
+				imCum.at<float>(j,i)=im.at<float>(j,i);
+			else
+				imCum.at<float>(j,i)=im.at<float>(j,i)+imCum.at<float>(j-1,i);
+		}
+	}
+
+
+	//difference over Y axis
+	for(int j=0;j<=r;j++){
+		for(int i=0;i<wid;i++){
+			imDst.at<float>(j,i)=imCum.at<float>(j+r,i);
+		}
+	}
+	for(int j=r+1;j<=hei-r-1;j++){
+		for(int i=0;i<wid;i++){
+			imDst.at<float>(j,i)=imCum.at<float>(j+r,i)-imCum.at<float>(j-r-1,i);
+		}
+	}
+	for(int j=hei-r;j<hei;j++){
+		for(int i=0;i<wid;i++){
+			imDst.at<float>(j,i)=imCum.at<float>(hei-1,i)-imCum.at<float>(j-r-1,i);
+		}
+	}
+
+
+	//cumulative sum over X axis
+	for(int j=0;j<hei;j++){
+		for(int i=0;i<wid;i++){
+			if(i==0)
+				imCum.at<float>(j,i)=imDst.at<float>(j,i);
+			else
+				imCum.at<float>(j,i)=imDst.at<float>(j,i)+imCum.at<float>(j,i-1);
+		}
+	}
+	//difference over X axis
+	for(int j=0;j<hei;j++){
+		for(int i=0;i<=r;i++){
+			imDst.at<float>(j,i)=imCum.at<float>(j,i+r);
+		}
+	}
+	for(int j=0;j<hei;j++){
+		for(int i=r+1;i<=wid-r-1;i++){
+			imDst.at<float>(j,i)=imCum.at<float>(j,i+r)-imCum.at<float>(j,i-r-1);
+		}
+	}
+	for(int j=0;j<hei;j++){
+		for(int i=wid-r;i<wid;i++){
+			imDst.at<float>(j,i)=imCum.at<float>(j,wid-1)-imCum.at<float>(j,i-r-1);
+		}
+	}
+
+	return imDst;
+}
 
 
 cv::Mat boxfilter(cv::Mat &im, int r)
