@@ -82,8 +82,9 @@ public:
         }
 
         cv::Mat process(const cv::Mat &image);
+		cv::Mat boxfilter(cv::Mat &im,int r);
+
 private:
-        cv::Mat boxfilter(cv::Mat &im,int r);
         cv::Mat guildedfilter_color(const cv::Mat &Img,cv::Mat &p,int r,float &epsi);
 
 };

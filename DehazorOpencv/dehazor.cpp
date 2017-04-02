@@ -198,6 +198,12 @@ cv::Mat Dehazor::process(const cv::Mat &image)
    //保证透射率不小于0.1  这里可以优化，可以合并到guidedfilter中去
    for(int j=0;j<dimr;j++){
        for(int i=0;i<dimc;i++){
+		   float aa = refinedImage_temp.at<float>(j,i);
+		   if(refinedImage_temp.at<float>(j,i) > 1)
+		   {
+			   int a = 5+9;
+			   int b = a+8;
+		   }
            if(refinedImage_temp.at<float>(j,i)<0.1)
                refinedImage_temp.at<float>(j,i)=0.1;
        }
@@ -397,7 +403,10 @@ cv::Mat Dehazor::guildedfilter_color(const cv::Mat &Img, cv::Mat &p, int r, floa
     mean_I_b=mean_I_b_temp.mul(1/N,1);
     mean_I_g=mean_I_g_temp.mul(1/N,1);
     mean_I_r=mean_I_r_temp.mul(1/N,1);
+	cv::imwrite("hismeanr.jpg",mean_I_r);
     mean_p=mean_p_temp.mul(1/N,1);
+	cv::imwrite("hismean_P.jpg",mean_I_r);
+
 
     Ip_b=layb.mul(P_32,1);
     Ip_g=layg.mul(P_32,1);
@@ -414,6 +423,7 @@ cv::Mat Dehazor::guildedfilter_color(const cv::Mat &Img, cv::Mat &p, int r, floa
     cov_Ip_b=mean_Ip_b-mean_I_b.mul(mean_p,1);
     cov_Ip_g=mean_Ip_g-mean_I_g.mul(mean_p,1);
     cov_Ip_r=mean_Ip_r-mean_I_r.mul(mean_p,1);
+	cv::imwrite("his_cov_Ip_b.jpg",cov_Ip_b);
 
 
 //     variance of I in each local patch: the matrix Sigma in Eqn (14).
@@ -477,7 +487,10 @@ cv::Mat Dehazor::guildedfilter_color(const cv::Mat &Img, cv::Mat &p, int r, floa
         }
     }
     b=mean_p-a_b.mul(mean_I_b,1)-a_g.mul(mean_I_g,1)-a_r.mul(mean_I_r,1);
+	cv::Mat b255(b.rows, b.cols, CV_32F);
+	b255=b.mul(nom_255, 1);
 
+	cv::imwrite("his_b.jpg", b255);
     cv::Mat box_ab=boxfilter(a_b,r);
     cv::Mat box_ag=boxfilter(a_g,r);
     cv::Mat box_ar=boxfilter(a_r,r);

@@ -18,6 +18,26 @@ int main()
 
 
 	LyhDehazor *lyhdehazor = new LyhDehazor(img.cols, img.rows, 7);
+
+	cv::Mat matOne(450,600,CV_8UC1,cv::Scalar(1));
+	cv::Mat N;
+	N=boxfilteri(matOne,7);
+	cv::Mat myn(img.rows, img.cols, CV_32F, lyhdehazor->mDivN);
+	cv::imwrite("hisn.jpg",N);
+	cv::imwrite("myn.jpg",myn);
+	float * ptr = (float * )N.data;
+	for(int i = 0; i < 450*600;i+=100)
+	{
+		int m = lyhdehazor->mDivN[i];
+		int n = ptr[i];
+		if(m != n){
+			int f = 0;
+			int s = f+5;
+		}
+	}   
+
+
+
 	Dehazor *dehazor = new Dehazor();
 	dehazor->setEpsilon(0.0001f);
 	dehazor->setFog_factor(0.95f);
@@ -27,33 +47,19 @@ int main()
 
 	////////////box
 	unsigned char * channel = GetMatChannel(&img, 0);
-	unsigned char * channel1 = (unsigned char *)malloc(sizeof(char) * img.rows * img.cols);
-	lyhdehazor->BoxFilter(channel,channel1, 7,img.cols, img.rows, 1);
-
-	cv::Mat mych(img.rows, img.cols, CV_8UC1, channel1);
-	cv::imwrite("myboxfilter.jpg",mych);
-	cv::Mat ch(img.rows, img.cols, CV_8UC1, channel);
-	cv::Mat ch2 = boxfilter(ch,7);
-	cv::imwrite("hisboxfilter.jpg",ch2);
+	float * channel2 = (float *)malloc(sizeof(float) * img.rows * img.cols);
+	lyhdehazor->MeanFilter(channel,channel2,7,img.cols,img.rows);
+	cv::Mat mych2(img.rows, img.cols, CV_32FC1, channel2);
+	cv::imwrite("myboxfiltermena.jpg",mych2);
+	unsigned char * cchannel = GetMatChannel(&img, 0);
+	cv::Mat ch(img.rows, img.cols, CV_8UC1, cchannel);
+	cv::Mat ch2 = boxfilteri(ch,7);
+	cv::Mat ch3(450,600,CV_32F);
+	 ch3 = ch2.mul(1/N, 1);
+	cv::imwrite("hisboxfilter.jpg",ch2);  
+	cv::imwrite("hisboxfilterMEAN.jpg",ch3);   
 	///////////////////
 
-	//////////////n
-	cv::Mat matOne(450,600,CV_32F,cv::Scalar(1));
-	cv::Mat N;
-	N=boxfilteri(matOne,7);
-	cv::Mat myn(img.rows, img.cols, CV_32F, lyhdehazor->mDivN);
-	cv::imwrite("hisn.jpg",N);
-	cv::imwrite("myn.jpg",myn);
-	float * ptr = (float * )N.data;
-	for(int i = 0; i < 450*600;++i)
-	{
-		int m = lyhdehazor->mDivN[i];
-		int n = ptr[i];
-		if(m != n){
-			int f = 0;
-			int s = f+5;
-		}
-	}
 
 
 
@@ -136,9 +142,9 @@ cv::Mat boxfilteri(cv::Mat &im, int r)
 	for(int i=0;i<wid;i++){
 		for(int j=0;j<hei;j++){
 			if(j==0)
-				imCum.at<float>(j,i)=im.at<float>(j,i);
+				imCum.at<float>(j,i)=im.at<unsigned char>(j,i);
 			else
-				imCum.at<float>(j,i)=im.at<float>(j,i)+imCum.at<float>(j-1,i);
+				imCum.at<float>(j,i)=im.at<unsigned char>(j,i)+imCum.at<float>(j-1,i);
 		}
 	}
 
