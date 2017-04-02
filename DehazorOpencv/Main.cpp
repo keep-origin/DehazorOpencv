@@ -79,6 +79,8 @@ int main()
 	namedWindow("lyh", CV_WINDOW_AUTOSIZE);  
 	imshow("lyh", img);  
 	imshow("dehazor", deh);  
+	cv::imwrite("hisfinal.jpg", deh);
+
 	imshow("refine", refine);
 	delete dehazor;
 	waitKey();  

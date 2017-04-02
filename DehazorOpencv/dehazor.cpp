@@ -146,7 +146,7 @@ cv::Mat Dehazor::process(const cv::Mat &image)
 
 
     rawtemp.convertTo(rawtemp,CV_32F);//这里只是把rawtemp变成浮点型，没有用到它原本的值，只是当做一个数据存储空间来处理
-
+	cv::Mat rt2(450,600,CV_32FC1);
 	//对应公式12，       I(y)
 	//               min——————    
 	//                c   A   
@@ -159,9 +159,10 @@ cv::Mat Dehazor::process(const cv::Mat &image)
             if(min>=layr.at<float>(j,i))
                 min=layr.at<float>(j,i);
             rawtemp.at<float>(j,i)=min;
+			rt2.at<float>(j,i)=min*255;
         }
     }
-	cv::imwrite("他的oriImageDivAirDark.jpg", rawtemp);
+	cv::imwrite("tuosheshuru_his.jpg", rt2);
 	//对应公式12     min
 	//~              y=Ωx
 	//tx
@@ -194,7 +195,12 @@ cv::Mat Dehazor::process(const cv::Mat &image)
 	//对投射图进行引导滤波处理，引导图是原图，输入是公式12计算得到的投射图
 	cv::imwrite("他的粗略透射率.jpg", rawImage);
    refinedImage_temp=guildedfilter_color(image,rawImage,localwindowsize,eps);
-   cv::imwrite("他的引导滤波后的透射率.jpg", refinedImage_temp);
+   cv::Mat rt(450,600, CV_32FC1);
+   for(int i = 0; i < 450*600; ++i)
+   {
+	   rt.at<float>(i) = refinedImage_temp.at<float>(i) * 255;
+   }
+   cv::imwrite("他的引导滤波后的透射率.jpg", rt);
    //保证透射率不小于0.1  这里可以优化，可以合并到guidedfilter中去
    for(int j=0;j<dimr;j++){
        for(int i=0;i<dimc;i++){
@@ -381,6 +387,11 @@ cv::Mat Dehazor::guildedfilter_color(const cv::Mat &Img, cv::Mat &p, int r, floa
     layg=planes[1];
     layr=planes[2];
 
+	cv::imwrite("his_ori_r.jpg", layr);
+	cv::imwrite("his_ori_g.jpg", layg);
+	cv::imwrite("his_ori_b.jpg", layb);
+
+
     layb.convertTo(layb, CV_32F);
     layg.convertTo(layg, CV_32F);
     layr.convertTo(layr, CV_32F);
@@ -423,7 +434,11 @@ cv::Mat Dehazor::guildedfilter_color(const cv::Mat &Img, cv::Mat &p, int r, floa
     cov_Ip_b=mean_Ip_b-mean_I_b.mul(mean_p,1);
     cov_Ip_g=mean_Ip_g-mean_I_g.mul(mean_p,1);
     cov_Ip_r=mean_Ip_r-mean_I_r.mul(mean_p,1);
-	cv::imwrite("his_cov_Ip_b.jpg",cov_Ip_b);
+
+	cv::Mat PBMAT(450,600,CV_32FC1,cv::Scalar(255*255));
+	cv::Mat PBMAT2(450,600,CV_32FC1);
+	PBMAT2 = PBMAT.mul(cov_Ip_b);
+	cv::imwrite("his_cov_Ip_bPBMAT2.jpg",PBMAT2);
 
 
 //     variance of I in each local patch: the matrix Sigma in Eqn (14).

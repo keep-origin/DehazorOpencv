@@ -67,6 +67,35 @@ LyhDehazor::MinFilter(unsigned char *data, int width, int height, int boxWidth, 
 /* 对应公式12，获得透射率的预估.   data为min[I(y)/A]  */
 /************************************************************************/
 void LyhDehazor::GetTrans(float *data, int width, int height, int boxsize, float *out, float w) {
+	for(int y = 0; y < height; ++y)
+	{
+		for(int x = 0; x < width; ++x)
+		{
+			float min = 255;
+			int left = MAX(x - boxsize, 0), top = MAX(y - boxsize, 0), right = MIN(x + boxsize, width - 1), bottom = MIN(y + boxsize, height - 1);
+			for(int i = left; i <= right; ++i)
+			{
+				for(int j = top; j < bottom; ++j)
+				{
+					if(data[y*width + x] < min)
+					{
+						min = data[y*width + x];
+					}
+				}
+			}
+			out[y*width + x] = (1 - w*min);
+		}
+	}
+
+	/***********************************************************************************/ /*
+	float * minForRow22 = (float *) malloc(sizeof(float) * height*width);
+	for(int i =0;i< width*height;++i)
+	{
+		minForRow22[i] = data[i] * 255;
+	}
+	writeImgF(width, height, minForRow22, "tuosheshuru_my.jpg");
+
+
     float replaceMin = 255, reserveMin = 255;//保留部分和替换部分的最小值
     float * minForRow = (float *) malloc(sizeof(float) * height); //保存当前处理的列范围内，每行的的最小值
     if (minForRow == NULL) {
@@ -103,7 +132,7 @@ void LyhDehazor::GetTrans(float *data, int width, int height, int boxsize, float
         }
 
     }
-	delete [] minForRow;
+	delete [] minForRow;   */
 }
 
 /************************************************************************/
@@ -173,14 +202,14 @@ void LyhDehazor::Dehazor(unsigned char *imageDataRGBA, int width, int height) {
 
 	writeImgF(width, height, trans, "wodetoushe.jpg");
 	//trans  255
-    GuidedFilter(oriR, oriG, oriB, trans, width, height, mRadius, 0.1f);
-	float *transrefine = (float *) malloc(sizeof(float) * LEN);
-
-	for(int i = 0; i < LEN; ++i)
+ //   GuidedFilter(oriR, oriG, oriB, trans, width, height, mRadius, 0.1f);
+	float *trans2 = (float *) malloc(sizeof(float) * LEN);
+	for(int i = 0; i < 450*600;++i)
 	{
-		transrefine[i] = trans[i]*255;
+		trans2[i] = trans[i] * 255;
 	}
-	writeImgF(width, height, transrefine, "woderefine.jpg");
+	writeImgF(width, height, trans2, "wodetoushe_refine.jpg");
+
 
     //以上，计算得到透射率
     /////////////////////////////////////////////////////////
@@ -265,6 +294,9 @@ void LyhDehazor::AirlightEsimation(unsigned char *oriImage, unsigned char *oriDa
     out[0] = r / num;
     out[1] = g / num;
     out[2] = b / num;
+	out[0] = 197.23333;
+	out[1] = 219.23333;
+	out[2] = 230.51111;
     //LOG("AirlightEsimation end  %d %d  %d", (int)out[0],(int)out[1],(int)out[2]);
 }
 
@@ -549,7 +581,12 @@ void LyhDehazor::Normalized(T *data, float *out, int len)
 
 //ori_r分别为原图的rgb通道， data为初步的透射率图,为0-255， 图片尺寸width*height  滤波半径size eps
 void LyhDehazor::GuidedFilter(unsigned char *ori_r, unsigned char *ori_g, unsigned char *ori_b, float *data, int width,
-                              int height, int size, float e) {
+                              int height, int size, float e)
+{
+	writeImg(width, height, ori_r, "ori_r.jpg");
+	writeImg(width, height, ori_r, "ori_b.jpg");
+	writeImg(width, height, ori_r, "ori_g.jpg");
+
     int LEN = width * height;
     float *fr = (float *) malloc(sizeof(float) * LEN);
     float *fg = (float *) malloc(sizeof(float) * LEN);
@@ -566,21 +603,19 @@ void LyhDehazor::GuidedFilter(unsigned char *ori_r, unsigned char *ori_g, unsign
     MeanFilter(fg, mg, size, width, height, 1.0f);
     MeanFilter(fb, mb, size, width, height, 1.0f);
 
-	writeImgF(width, height, mb, "guided_mr.jpg");
-
-
     float *md = (float *) malloc(sizeof(float) * LEN);
     MeanFilter(data, md, size, width, height, 1.0f);
-	writeImgF(width, height, md, "guided_md.jpg");
-	writeImgF(width, height, data, "guided_d.jpg");
-	writeImg(width, height, ori_r, "guided_r.jpg");
 
-    float *mdr = (float *) malloc(sizeof(float) * LEN);
+	float *mdr = (float *) malloc(sizeof(float) * LEN);
+	float *mdr2 = (float *) malloc(sizeof(float) * LEN);
     MulMeanFilter(data, fr, mdr, size, width, height);
+
     for (int i = 0; i < LEN; ++i) {
         mdr[i] -= md[i] * mr[i];
+		mdr2[i] = mdr[i] *255*255;
     }
-	writeImgF(width, height, mdr, "guided_mdr.jpg");
+	writeImgF(width,height, mdr2, "my_d_r22222222222.jpg");
+
 
     float *mdg = (float *) malloc(sizeof(float) * LEN);
     MulMeanFilter(data, fg, mdg, size, width, height);
@@ -637,12 +672,15 @@ void LyhDehazor::GuidedFilter(unsigned char *ori_r, unsigned char *ori_g, unsign
     float *ab = (float *) malloc(sizeof(float) * LEN);
     float *b = (float *) malloc(sizeof(float) * LEN);
     for (int i = 0; i < LEN; ++i) {
-        float v1 = (mgg[i] + eps) * (mbb[i] + eps) - mbg[i] * mbg[i];
-        float v2 = mbg[i] * mrb[i] - mrg[i] * (mbb[i] + eps);
-        float v3 = (mrr[i] + eps) * (mbb[i] + eps) - mrb[i] * mrb[i];
-        float v4 = mrg[i] * mbg[i] - (mgg[i] + eps) * mrb[i];
-        float v5 = mrg[i] * mrb[i] - (mrr[i] + eps) * mbg[i];
-        float v6 = (mrr[i] + eps) * (mgg[i] + eps) - mrg[i] * mrg[i];
+		mrr[i] += eps;mbb[i] += eps; mgg[i]+=eps;
+		//(rr*gb^2 - 2*gb*rb*rg + gg*rb^2 + bb*rg^2 - bb*gg*rr)
+		float D = mrr[i]*(mgg[i]*mbb[i]-mbg[i]*mbg[i]) - mrg[i]*(mrg[i]*mbb[i]-mrb[i]*mbg[i]) + mrb[i]*(mrg[i]*mbg[i]-mrb[i]*mgg[i]);
+        float v1 = (mgg[i]) * (mbb[i] ) - mbg[i] * mbg[i];  v1 /= D;
+        float v2 = mbg[i] * mrb[i] - mrg[i] * (mbb[i] );  v2 /= D;
+        float v3 = (mrr[i] ) * (mbb[i] ) - mrb[i] * mrb[i];  v3 /= D;
+        float v4 = mrg[i] * mbg[i] - (mgg[i] ) * mrb[i];  v4 /= D;
+        float v5 = mrg[i] * mrb[i] - (mrr[i] ) * mbg[i];  v5 /= D;
+        float v6 = (mrr[i]) * (mgg[i]) - mrg[i] * mrg[i];  v6 /= D;
 
         ar[i] = mdr[i] * v1 + mdg[i] * v2 + mdb[i] * v4;
         ag[i] = mdr[i] * v2 + mdg[i] * v3 + mdb[i] * v5;
@@ -651,8 +689,6 @@ void LyhDehazor::GuidedFilter(unsigned char *ori_r, unsigned char *ori_g, unsign
     for (int i = 0; i < LEN; ++i) {
         b[i] = md[i] - ar[i] * mr[i] - ag[i] * mg[i] - ab[i] * mb[i];
     }
-
-	writeImgF(width, height, b, "guided_b.jpg");
 
     delete [] mr;
     delete [] mg;
@@ -678,7 +714,7 @@ void LyhDehazor::GuidedFilter(unsigned char *ori_r, unsigned char *ori_g, unsign
     BoxFilter(b, boxb, size, width, height, 1.0f);
 
     for (int i = 0; i < LEN; ++i) {
-        data[i] = (boxar[i] * ori_r[i] + boxag[i] * ori_g[i] + boxab[i] * ori_b[i] + boxb[i]) /
+        data[i] = (boxar[i] * fr[i] + boxag[i] * fg[i] + boxab[i] * fb[i] + boxb[i]) /
                   mDivN[i];
     }
 }
