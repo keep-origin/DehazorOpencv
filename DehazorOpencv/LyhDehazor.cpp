@@ -77,13 +77,13 @@ void LyhDehazor::GetTrans(float *data, int width, int height, int boxsize, float
 			{
 				for(int j = top; j < bottom; ++j)
 				{
-					if(data[y*width + x] < min)
+					if(data[j*width + i] < min)
 					{
-						min = data[y*width + x];
+						min = data[j*width + i];
 					}
 				}
 			}
-			out[y*width + x] = (1 - w*min);
+			out[y*width + x] = (1 - w*min)*255;
 		}
 	}
 
@@ -202,7 +202,7 @@ void LyhDehazor::Dehazor(unsigned char *imageDataRGBA, int width, int height) {
 
 	writeImgF(width, height, trans, "wodetoushe.jpg");
 	//trans  255
- //   GuidedFilter(oriR, oriG, oriB, trans, width, height, mRadius, 0.1f);
+    GuidedFilter(oriR, oriG, oriB, trans, width, height, mRadius*4, 0.1f);
 	float *trans2 = (float *) malloc(sizeof(float) * LEN);
 	for(int i = 0; i < 450*600;++i)
 	{
@@ -583,6 +583,7 @@ void LyhDehazor::Normalized(T *data, float *out, int len)
 void LyhDehazor::GuidedFilter(unsigned char *ori_r, unsigned char *ori_g, unsigned char *ori_b, float *data, int width,
                               int height, int size, float e)
 {
+	BoxDivN(mDivN, 600,450,size);
 	writeImg(width, height, ori_r, "ori_r.jpg");
 	writeImg(width, height, ori_r, "ori_b.jpg");
 	writeImg(width, height, ori_r, "ori_g.jpg");
@@ -712,6 +713,11 @@ void LyhDehazor::GuidedFilter(unsigned char *ori_r, unsigned char *ori_g, unsign
     BoxFilter(ab, boxab, size, width, height, 1.0f);
     float *boxb = (float *) malloc(sizeof(float) * LEN);
     BoxFilter(b, boxb, size, width, height, 1.0f);
+
+
+	int *nn = (int*)malloc(sizeof(int)*450*600);
+	BoxDivN(nn, 600,450,size);
+
 
     for (int i = 0; i < LEN; ++i) {
         data[i] = (boxar[i] * fr[i] + boxag[i] * fg[i] + boxab[i] * fb[i] + boxb[i]) /
