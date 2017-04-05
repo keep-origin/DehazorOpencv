@@ -4,10 +4,29 @@
 #include <opencv2/opencv.hpp>
 #include "dehazor.h"
 #include "LyhDehazor.h"
+#include "FastDehazor.h"
 
 using namespace cv;
 
 int main()
+{
+	void FastDehazorTest();
+	FastDehazorTest();
+}
+
+void FastDehazorTest()
+{
+	unsigned char* MatToRGBA(const Mat *mat);
+
+	Mat img = imread("pic2.jpg",1);  
+	FastDehazor * fastDehazor = new FastDehazor(img.cols, img.rows);
+	unsigned char * rgba = MatToRGBA(&img);
+	fastDehazor->process(rgba , img.cols, img.rows);
+	cv::Mat img2(img.rows, img.cols, CV_8UC4, rgba);
+	cv::imwrite("fastrgba.jpg",img2);
+}
+
+void DarkPriorTest()
 {
 	cv::Mat boxfilter(cv::Mat &im, int r);
 	cv::Mat boxfilteri(cv::Mat &im, int r);
@@ -85,7 +104,6 @@ int main()
 	imshow("refine", refine);
 	delete dehazor;
 	waitKey();  
-
 }
 
 unsigned char* MatToRGBA(const Mat *mat)
