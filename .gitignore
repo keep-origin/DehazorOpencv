@@ -3,3 +3,4 @@ Debug/
 DehazorOpencv/Debug/
 DehazorOpencv/x64/
 *.jpg
+*.props
