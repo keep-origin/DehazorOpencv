@@ -4,3 +4,6 @@ DehazorOpencv/Debug/
 DehazorOpencv/x64/
 *.jpg
 *.props
+*.tlog
+*.obj
+*.idb
