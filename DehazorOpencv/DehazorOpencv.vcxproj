@@ -144,10 +144,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dehazor.h" />
+    <ClInclude Include="FastDehazor.h" />
     <ClInclude Include="LyhDehazor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dehazor.cpp" />
+    <ClCompile Include="FastDehazor.cpp" />
     <ClCompile Include="LyhDehazor.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>

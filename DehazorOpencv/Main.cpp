@@ -45,7 +45,8 @@ int main()
 	dehazor->setLocalWindowsize(21);
 
 
-	////////////box
+	////////////box 
+	/*
 	unsigned char * channel = GetMatChannel(&img, 0);
 	float * channel2 = (float *)malloc(sizeof(float) * img.rows * img.cols);
 	lyhdehazor->MeanFilter(channel,channel2,7,img.cols,img.rows);
@@ -58,7 +59,7 @@ int main()
 	 ch3 = ch2.mul(1/N, 1);
 	cv::imwrite("hisboxfilter.jpg",ch2);  
 	cv::imwrite("hisboxfilterMEAN.jpg",ch3);   
-	///////////////////
+	*///////////////////
 
 
 

@@ -67,6 +67,12 @@ LyhDehazor::MinFilter(unsigned char *data, int width, int height, int boxWidth, 
 /* 对应公式12，获得透射率的预估.   data为min[I(y)/A]  */
 /************************************************************************/
 void LyhDehazor::GetTrans(float *data, int width, int height, int boxsize, float *out, float w) {
+	float * minForRow222 = (float *) malloc(sizeof(float) * height*width);
+	for(int i =0;i< width*height;++i)
+	{
+		minForRow222[i] = data[i] * 255;
+	}
+	writeImgF(width, height, minForRow222, "aaatuosheshuru_my.jpg");
 	for(int y = 0; y < height; ++y)
 	{
 		for(int x = 0; x < width; ++x)
@@ -87,13 +93,15 @@ void LyhDehazor::GetTrans(float *data, int width, int height, int boxsize, float
 		}
 	}
 
-	/***********************************************************************************/ /*
+	writeImgF(width, height, out, "aaa_trans.jpg");
+
+	/***********************************************************************************/ 
 	float * minForRow22 = (float *) malloc(sizeof(float) * height*width);
 	for(int i =0;i< width*height;++i)
 	{
 		minForRow22[i] = data[i] * 255;
 	}
-	writeImgF(width, height, minForRow22, "tuosheshuru_my.jpg");
+	writeImgF(width, height, minForRow22, "aabtuosheshuru_my.jpg");
 
 
     float replaceMin = 255, reserveMin = 255;//保留部分和替换部分的最小值
@@ -106,7 +114,7 @@ void LyhDehazor::GetTrans(float *data, int width, int height, int boxsize, float
     }
     for (int x = 0; x < width; ++x) {
         int left = MAX(0, x - boxsize), right = MIN(x + boxsize, width);
-        for (int y = 0; y < height; ++y) {
+        for (int y = 0; y < height; ++y) {  //这个for循环计算得到了left-right的宽度范围内的，所有行的最小值
             //若是第一次计算minForRow，那么minforrow中的值应该为0，即uchar可能的最小值，如果if成立，那么该行的最小值即为最后一个，为0
             //若minforrow已经经历过一次计算，那么minforrow中含有的是[left - 1, right -2)中的最小值，现在我们要求的是[left,right - 1),
             //那么，如果if成立，data则是整个[left - 1, right -1)中的最小值，自然也是我们要求的最小值
@@ -132,7 +140,8 @@ void LyhDehazor::GetTrans(float *data, int width, int height, int boxsize, float
         }
 
     }
-	delete [] minForRow;   */
+	delete [] minForRow;   
+	writeImgF(width, height, out, "aab_trans.jpg");
 }
 
 /************************************************************************/
