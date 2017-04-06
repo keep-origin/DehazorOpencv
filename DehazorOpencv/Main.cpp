@@ -21,6 +21,8 @@ void FastDehazorTest()
 	Mat img = imread("pic2.jpg",1);  
 	FastDehazor * fastDehazor = new FastDehazor(img.cols, img.rows);
 	unsigned char * rgba = MatToRGBA(&img);
+	cv::imwrite("fastrgba_old.jpg",img);
+
 	fastDehazor->process(rgba , img.cols, img.rows);
 	cv::Mat img2(img.rows, img.cols, CV_8UC4, rgba);
 	cv::imwrite("fastrgba.jpg",img2);

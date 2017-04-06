@@ -2,13 +2,13 @@
 
 FastDehazor::FastDehazor(int width, int height)
 {
-	mP = 1.2f;
+	mP = 2.0f;
 	mResultTable = (unsigned char *)malloc(sizeof(unsigned char) * 256 * 256);
-	InitResultTable();
+	//InitResultTable();
 	mUpper = 0.9f;
 	mDivN = (int *)malloc(sizeof(int) * width * height);
-	BoxDivN(mDivN, width, height, 15);
-	mWinSize = 15;
+	mWinSize = 50;
+	BoxDivN(mDivN, width, height, mWinSize);
 }
 
 FastDehazor::~FastDehazor()
@@ -68,6 +68,9 @@ int FastDehazor::process(unsigned char * rgba, int width, int height)
 		unsigned char b = darkChannel[i];
 		lx[i] = a < b ? a : b;
 	}
+	cv::Mat lximg(height, width, CV_8UC1, lx);
+	cv::imwrite("lx.jpg", lximg);
+
 
 	//求A  步骤6
 	unsigned char * prt5;
@@ -99,36 +102,26 @@ int FastDehazor::process(unsigned char * rgba, int width, int height)
 	InitResultTable();
 
 	//计算输出
+	int index,value, lxi;
 	for (int i = 0; i < height; ++i)
 	{
-		int index = i * width;
-		for (int j = 0; j < width; ++j, index+=4)
+		index = i * width * 4;
+		lxi = index >> 2;
+		for (int j = 0; j < width; ++j, index+=4, ++lxi)
 		{
-			int value = rgba[index];
-			if(value > 255)
-			{
-				int abc =1;
-			}
-			value = value << 8 ;
-
-			value += lx[index];
+			value = rgba[index] ;
+			value = value << 8;
+			value +=  lx[lxi];
 			rgba[index] = mResultTable[value ];
-			value = rgba[index+1];
-			if(value > 255)
-			{
-				int abc =1;
-			}
-			value = value << 8 ;
-			value += lx[index+1];
-			rgba[index+1] = mResultTable[value];
-			value = rgba[index+2];
-			if(value > 255)
-			{
-				int abc =1;
-			}
-			value = value << 8 ;
-			value += lx[index+2];
 
+			value = rgba[index+1] ;
+			value = value << 8;
+			value +=  lx[lxi];
+			rgba[index+1] = mResultTable[value];
+
+			value = rgba[index+2] ;
+			value = value << 8;
+			value +=  lx[lxi];
 			rgba[index+2] = mResultTable[value ];
 		}
 	}
