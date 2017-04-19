@@ -18,5 +18,5 @@
 #endif
 
 #ifndef CLAM
-#define CLAM(a) ((a) > 255 ? 255 : ((a) < 0 ? 0 : (a)))
+#define CLAM(a) (unsigned char)((a) > 255 ? 255 : ((a) < 0 ? 0 : (a)))
 #endif

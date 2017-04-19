@@ -6,6 +6,7 @@
 #include "LyhDehazor.h"
 #include "FastDehazor.h"
 #include "BaseHeader.h"
+#include "SpaceFilter.h"
 
 using namespace cv;
 using namespace std;
@@ -15,7 +16,9 @@ void ShowTwoImg(Mat &img1, Mat &img2);
 int main()
 {
 	Mat img = imread("pic2.jpg", IMREAD_GRAYSCALE);
-	ShowTwoImg(img, img);
+	Mat out(img.rows, img.cols, img.type());
+	SpaceFilter::Grama<unsigned char>(img, out, 0.5, (unsigned char)1);
+	ShowTwoImg(img, out);
 
 	waitKey();
 }
