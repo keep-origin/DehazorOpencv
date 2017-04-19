@@ -17,7 +17,7 @@ int main()
 {
 	Mat img = imread("pic2.jpg", IMREAD_GRAYSCALE);
 	Mat out(img.rows, img.cols, img.type());
-	SpaceFilter::Grama<unsigned char>(img, out, 0.5, (unsigned char)1);
+	SpaceFilter::Grama<unsigned char>(img, out, 0.5, 255);
 	ShowTwoImg(img, out);
 
 	waitKey();

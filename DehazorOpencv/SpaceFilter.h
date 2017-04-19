@@ -6,8 +6,12 @@ using namespace cv;
 
 class SpaceFilter{
 public:
+
+	/************************************************************************/
+	/* max:the max value of type T                                         */
+	/************************************************************************/
 	template<class T>
-	static void Grama(Mat &imgIn, Mat &imgOut, float r, T t){
+	static void Grama(Mat &imgIn, Mat &imgOut, float r, double max){
 		int channel  = imgIn.channels();
 
 		for(int h = 0; h < imgIn.rows; ++h)
@@ -18,8 +22,8 @@ public:
 			{
 				for(int i = 0; i < channel; ++i)
 				{
-					double v = ptr1[w + i] / 255.0;
-					v = pow(v, r) * 255;
+					double v = ptr1[w + i] / max;
+					v = pow(v, r) * max;
 					ptr2[w + i] = CLAM(v);
 				}
 			}
