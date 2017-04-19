@@ -5,14 +5,34 @@
 #include "dehazor.h"
 #include "LyhDehazor.h"
 #include "FastDehazor.h"
+#include "BaseHeader.h"
 
 using namespace cv;
+using namespace std;
+
+void ShowTwoImg(Mat &img1, Mat &img2);
 
 int main()
 {
-	void FastDehazorTest();
-	FastDehazorTest();
+	Mat img = imread("pic2.jpg", IMREAD_GRAYSCALE);
+	ShowTwoImg(img, img);
+
+	waitKey();
 }
+
+void ShowTwoImg(Mat &img1, Mat &img2)
+{
+	int width = img1.cols  + img2.cols + 10;
+	int height = MAX(img2.rows, img1.rows);
+	CV_Assert(img1.type() == img2.type());
+	Mat two(height, width, img1.type());
+	img1.copyTo(two(Rect(0,0,img1.cols, img1.rows)));
+	img2.copyTo(two(Rect(img1.cols + 10,0,img2.cols, img2.rows)));  //operator()：选图图片中的某个区域
+	namedWindow("lyh", CV_WINDOW_AUTOSIZE);
+	imshow("lyh", two);
+}
+
+
 
 void FastDehazorTest()
 {
