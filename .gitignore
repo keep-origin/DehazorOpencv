@@ -7,3 +7,8 @@ DehazorOpencv/x64/
 *.tlog
 *.obj
 *.idb
+*.opensdf
+*.sdf
+*.suo
+*.vcxproj
+*.filters
