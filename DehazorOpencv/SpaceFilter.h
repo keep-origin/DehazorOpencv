@@ -18,7 +18,7 @@ public:
 		{
 			const T *ptr1 = imgIn.ptr<T>(h);
 			T *ptr2 = imgOut.ptr<T>(h);
-			for(int w = 0; w < imgIn.cols; w += channel)
+			for(int w = 0; w < imgIn.cols * channel; w += channel)
 			{
 				for(int i = 0; i < channel; ++i)
 				{
