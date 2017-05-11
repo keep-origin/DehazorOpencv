@@ -13,12 +13,62 @@ using namespace std;
 
 void ShowTwoImg(Mat &img1, Mat &img2);
 
+int g_nContrastVaule;
+int g_nBrightValue;
+int g_floodfill;
+Mat src, dst;
+void onchange(int pos, void *data)
+{
+	for (int i = 0; i < src.rows; ++i)
+	{
+		uchar *ptrs = src.ptr<uchar>(i);
+		uchar *ptrd = dst.ptr<uchar>(i);
+
+		for (int j = 0; j < src.cols * 3; ++j)
+		{
+			ptrd[j] = saturate_cast<uchar>(g_nContrastVaule * ptrs[j] / 100 + g_nBrightValue);
+		}
+	}
+	imshow("dst", dst);
+}
+
+void onchange2(int pos, void *data)
+{
+	Mat m = src.clone();
+	floodFill(m, Point(src.cols / 2, src.rows / 2), Scalar(0,0,255), NULL, Scalar(g_floodfill,g_floodfill,g_floodfill), Scalar(g_floodfill,g_floodfill,g_floodfill));
+	imshow("floodfill", m);
+}
+
 int main()
 {
-	Mat img = imread("pic2.jpg", 1);
-	Mat out(img.rows, img.cols, img.type());
-	SpaceFilter::Grama<unsigned char>(img, out, 0.5, 255);
-	ShowTwoImg(img, out);
+	g_nBrightValue = 80;
+	g_nContrastVaule = 50;
+	src = imread("img2.jpg", 1);
+	dst = Mat(src.size(), src.type());
+
+	imshow("dst", dst);
+	createTrackbar("对比度", "dst", &g_nContrastVaule, 100, onchange);
+	createTrackbar("亮度", "dst", &g_nBrightValue, 100, onchange);
+
+	Mat m = src.clone();
+	floodFill(m, Point(src.cols / 2, src.rows / 2), Scalar(0,0,255), NULL, Scalar(20,20,20), Scalar(20,20,20));
+	imshow("floodfill", m);
+	createTrackbar("floodfill", "floodfill", &g_floodfill, 100, onchange2);
+
+	src = imread("img2.jpg", 0);
+	threshold(src, src, 150, 255, CV_THRESH_TRUNC);
+	imshow("resize", src);
+
+
+
+
+	/*Mat img1 = imread("img1.jpg", 1);
+	Mat img2 = imread("img2.jpg", 1);
+	Mat out(img1.rows, img1.cols, img1.type());
+	double a = 0.5;
+	addWeighted(img1, a, img2, 1- a, 0, out);
+	imshow("out", out);
+	ShowTwoImg(img1, out);  */
 
 	waitKey();
 }

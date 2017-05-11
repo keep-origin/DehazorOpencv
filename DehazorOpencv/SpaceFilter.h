@@ -29,4 +29,7 @@ public:
 			}
 		}
 	}
+	void Histeq(Mat & src);
+
+	bool GenHist(Mat &src, long hist[256], int n = 256);
 };
